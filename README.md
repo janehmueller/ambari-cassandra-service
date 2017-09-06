@@ -23,6 +23,11 @@ ssh root@sandbox.hortonworks.com
 VERSION=`hdp-select status hadoop-client | sed 's/hadoop-client - \([0-9]\.[0-9]\).*/\1/'`
 sudo git clone https://github.com/Symantec/ambari-cassandra-service.git   /var/lib/ambari-server/resources/stacks/HDP/$VERSION/services/CASSANDRA   
 ```
+- Manually install python-support on each node ([link](https://github.com/ajenti/ajenti/issues/903#issuecomment-215569332))
+```
+wget http://launchpadlibrarian.net/109052632/python-support_1.0.15_all.deb
+sudo dpkg -i python-support_1.0.15_all.deb
+```
 - Restart Ambari
 ```
 #sandbox
@@ -51,17 +56,18 @@ Add the Ip address of all the seed nodes in the ring. It can be 1 to many. Add c
 - To remove the Cassandra service: 
   - Stop the service via Ambari
   - Unregister the service
-
   ```
-export SERVICE=Cassandra
-export PASSWORD=admin
-export AMBARI_HOST=localhost
-#detect name of cluster
-output=`curl -u admin:$PASSWORD -i -H 'X-Requested-By: ambari'  http://$AMBARI_HOST:8080/api/v1/clusters`
-CLUSTER=`echo $output | sed -n 's/.*"cluster_name" : "\([^\"]*\)".*/\1/p'`
+  export SERVICE=Cassandra
+  export PASSWORD=admin
+  export AMBARI_HOST=localhost
+  ```
+# detect name of cluster
+  ```
+  output=`curl -u admin:$PASSWORD -i -H 'X-Requested-By: ambari'  http://$AMBARI_HOST:8080/api/v1/clusters`
+  CLUSTER=`echo $output | sed -n 's/.*"cluster_name" : "\([^\"]*\)".*/\1/p'`
 
-curl -u admin:$PASSWORD -i -H 'X-Requested-By: ambari' -X DELETE http://$AMBARI_HOST:8080/api/v1/clusters/$CLUSTER/services/$SERVICE
-
+  curl -u admin:$PASSWORD -i -H 'X-Requested-By: ambari' -X DELETE http://$AMBARI_HOST:8080/api/v1/clusters/$CLUSTER/services/$SERVICE
+  ```
 # if above errors out, run below first to fully stop the service
   ```
   curl -u admin:$PASSWORD -i -H 'X-Requested-By: ambari' -X PUT -d '{"RequestInfo": {"context" :"Stop $SERVICE via REST"}, "Body": {"ServiceInfo": {"state": "INSTALLED"}}}' http://$AMBARI_HOST:8080/api/v1/clusters/$CLUSTER/services/$SERVICE
