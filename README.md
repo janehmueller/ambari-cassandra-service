@@ -50,6 +50,17 @@ Add the Ip address of all the seed nodes in the ring. It can be 1 to many. Add c
 - You can see the parameters you configured under 'Configs' tab
 ![Image](../master/screenshots/Installed-service-config.png?raw=true)
 
+- Stop Cassandra service on each node and delete the data
+  ```
+  sudo service cassandra stop
+  sudo rm -rf /var/lib/cassandra/data/system/*
+  ```
+
+- Manually set the config by editing the `/etc/cassandra/cassandra.yaml` on each host.
+  - set `cluster_name` and `seeds`
+  - unset `listen_address` and `rpc_address`
+
+- Start Cassandra service
 
 #### Remove service
 
